@@ -4,8 +4,9 @@ var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
 module.exports = app; // for testing
 
+var config = require('./config');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://52.87.183.38:27017/voting-app');
+mongoose.connect(config.mongodb);
 
 var config = {
   appRoot: __dirname // required config
