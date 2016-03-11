@@ -1,0 +1,165 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /polls:
+    x-swagger-router-controller: polls
+    get:
+      description: List of polls
+      operationId: getAllPolls
+      responses:
+        200:
+          description: An array of polls
+          schema: 
+            type: array
+            items: 
+                $ref: "#/definitions/Poll"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /polls/{id}:
+    x-swagger-router-controller: polls
+    get:
+      description: Returns a single poll
+      operationId: getSinglePoll
+      parameters:
+        - name: id
+          in: path
+          description: Poll id
+          required: true
+          type: string
+      responses:
+        200:
+          description: A single Poll
+          schema: 
+            $ref: "#/definitions/Poll"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      description: Post a vote
+      operationId: vote
+      parameters:
+        - name: id
+          in: path
+          description: Poll id
+          required: true
+          type: string
+        - name: vote_parameters
+          in: body
+          description: Vote parameters (user and vote)
+          required: true
+          schema:
+            type: object
+            properties:
+              user_email:
+                type: string
+                description: User email address. Must be a valid "@3xmgroup" account
+              option_voted:
+                type: string
+                description: Option that the user has voted for
+      responses:
+        200:
+          description: A single Poll
+          schema: 
+            $ref: "#/definitions/Poll"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /polls/{id}/vote_results:
+    x-swagger-router-controller: polls
+    get:
+      description: Returns the poll's votes
+      operationId: getPollResults
+      parameters:
+        - name: id
+          in: path
+          description: Poll id
+          required: true
+          type: string
+      responses:
+        200:
+          description: An array with the poll votes
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/VoteResult"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  Poll:
+    properties:
+      id:
+        type: string
+        description: Poll unique identifier
+      open_date:
+        type: string
+        description: Time when the poll is opened
+      close_date:
+        type: string
+        description: DateTime when the poll is closed
+      closed:
+        type: boolean
+        description: Whether the poll was closed
+      options:
+        type: array
+        items: 
+          $ref: '#/definitions/Option'
+          
+  Option:
+    properties:
+      display_name:
+        type: string
+        description: Option name
+      image:
+        type: string
+        description: Option image url
+      value:
+        type: string
+        description: Option value
+        
+  VoteResult:
+    properties:
+      display_name:
+        type: string
+        description: Option name
+      image:
+        type: string
+        description: Option image url
+      value:
+        type: string
+        description: Option value
+      
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
